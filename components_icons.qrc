@@ -3,5 +3,6 @@
     <qresource prefix="/">
         <file>Icons/bus.png</file>
         <file>Icons/gen.png</file>
+        <file>Icons/bus2.png</file>
     </qresource>
 </RCC>

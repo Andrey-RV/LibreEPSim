@@ -23,7 +23,10 @@ private slots:
     void on_actiongen_triggered();
     void updateImagePosition();
 
+    void on_actionbus_triggered();
+
 protected:
+    void createComponent(const QString& imagePath);
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
