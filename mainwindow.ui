@@ -48,6 +48,15 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>40</width>
+     <height>40</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -56,6 +65,7 @@
    </attribute>
    <addaction name="actiongen"/>
    <addaction name="actionbus"/>
+   <addaction name="actionline"/>
   </widget>
   <action name="actionOpen">
    <property name="text">
@@ -99,6 +109,19 @@
    </property>
    <property name="text">
     <string>bus</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionline">
+   <property name="icon">
+    <iconset resource="components_icons.qrc">
+     <normaloff>:/Icons/line.png</normaloff>
+     <normalon>:/Icons/line.png</normalon>:/Icons/line.png</iconset>
+   </property>
+   <property name="text">
+    <string>line</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
