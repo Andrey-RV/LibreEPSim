@@ -30,10 +30,10 @@ private slots:
     void on_actionline_triggered();
     void onMouseMoved(const QPointF &scenePos); // Slot for mouse movement
     void onMousePressed(const QPointF &scenePos); // Slot for mouse press
-    // void mousePressEvent(QMouseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event);
+    void onMouseDoubleClicked(const QPointF &scenePos);
 
 protected:
+    void keyPressEvent(QKeyEvent *event);
     void createComponent(const QString& imagePath);
     void updateImagePosition();
     void zoomIn();
@@ -58,5 +58,6 @@ private:
     bool lineDrawing = false;
     QGraphicsLineItem* currentLine;
     QPointF startPoint;
+    Qt::Orientation constraintDirection = Qt::Horizontal;
 };
 #endif // MAINWINDOW_H

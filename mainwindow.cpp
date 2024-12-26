@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(graphicsView, &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
     connect(graphicsView, &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
+    connect(graphicsView, &MyGraphicsView::mouseDoubleClicked, this, &MainWindow::onMouseDoubleClicked);
     connect(moveTimer, &QTimer::timeout, this, &MainWindow::updateImagePosition);
 }
 
@@ -81,10 +82,19 @@ void MainWindow::onMouseMoved(const QPointF &scenePos)
     if (lineDrawing && currentLine) {
         QLineF newLine(startPoint, scenePos);
 
-        // Restrict to horizontal or vertical
-        if (qAbs(newLine.dx()) > qAbs(newLine.dy())) {
+        // Restrict to horizontal or vertical based on initial movement
+        if (constraintDirection == static_cast<Qt::Orientation>(-1)) {
+            if (qAbs(newLine.dx()) > qAbs(newLine.dy())) {
+                constraintDirection = Qt::Horizontal;  // Switch to horizontal
+            } else {
+                constraintDirection = Qt::Vertical;  // Switch to vertical
+            }
+        }
+
+        // Enforce the active constraint
+        if (constraintDirection == Qt::Horizontal) {
             newLine.setP2(QPointF(scenePos.x(), startPoint.y()));  // Horizontal
-        } else {
+        } else if (constraintDirection == Qt::Vertical) {
             newLine.setP2(QPointF(startPoint.x(), scenePos.y()));  // Vertical
         }
 
@@ -101,23 +111,27 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
             currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
             currentLine->setPen(QPen(Qt::black, 2));
             graphicsScene->addItem(currentLine);
+            constraintDirection = static_cast<Qt::Orientation>(-1);  // No direction defined initially
         } else {
             // Finalize the line
             QPointF endPoint = scenePos;
 
-            // Enforce horizontal or vertical constraints
-            if (qAbs(endPoint.x() - startPoint.x()) > qAbs(endPoint.y() - startPoint.y())) {
-                endPoint.setY(startPoint.y()); // Force horizontal
-            } else {
-                endPoint.setX(startPoint.x()); // Force vertical
+            // Enforce the active constraint
+            if (constraintDirection == Qt::Horizontal) {
+                endPoint.setY(startPoint.y());  // Horizontal constraint
+            } else if (constraintDirection == Qt::Vertical) {
+                endPoint.setX(startPoint.x());  // Vertical constraint
             }
 
             QLineF newLine(startPoint, endPoint);
             currentLine->setLine(newLine);
 
-            // Reset for the next action
-            currentLine = nullptr;
-            lineDrawing = false;
+            // Prepare for the next line
+            startPoint = endPoint;
+            currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
+            currentLine->setPen(QPen(Qt::black, 2));
+            graphicsScene->addItem(currentLine);
+            constraintDirection = static_cast<Qt::Orientation>(-1);  // Reset to no direction defined
         }
     }
     if (componentIsMoving && currentItem) {
@@ -129,6 +143,29 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
 
         currentItem = nullptr;
         unsetCursor();
+    }
+}
+
+void MainWindow::onMouseDoubleClicked(const QPointF &scenePos)
+{
+    if (lineDrawing && currentLine) {
+        // Finalize the line
+        QPointF endPoint = scenePos;
+
+        // Enforce the active constraint
+        if (constraintDirection == Qt::Horizontal) {
+            endPoint.setY(startPoint.y());  // Horizontal constraint
+        } else if (constraintDirection == Qt::Vertical) {
+            endPoint.setX(startPoint.x());  // Vertical constraint
+        }
+
+        QLineF newLine(startPoint, endPoint);
+        currentLine->setLine(newLine);
+
+        // Reset for the next action
+        currentLine = nullptr;
+        lineDrawing = false;
+        constraintDirection = static_cast<Qt::Orientation>(-1);  // Reset to no direction defined
     }
 }
 

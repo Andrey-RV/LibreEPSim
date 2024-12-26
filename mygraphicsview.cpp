@@ -9,11 +9,9 @@ MyGraphicsView::MyGraphicsView(QWidget *parent)
 
 void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
-    {
-        QPointF scenePos = mapToScene(event->pos());
-        emit mouseMoved(scenePos); // Emit the signal
-        QGraphicsView::mouseMoveEvent(event);
-    }
+    QPointF scenePos = mapToScene(event->pos());
+    emit mouseMoved(scenePos); // Emit the signal
+    QGraphicsView::mouseMoveEvent(event);
 }
 
 void MyGraphicsView::mousePressEvent(QMouseEvent *event)
@@ -21,4 +19,11 @@ void MyGraphicsView::mousePressEvent(QMouseEvent *event)
     QPointF scenePos = mapToScene(event->pos());
     emit mousePressed(scenePos); // Emit the signal
     QGraphicsView::mousePressEvent(event);
+}
+
+void MyGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QPointF scenePos = mapToScene(event->pos());
+    emit mouseDoubleClicked(scenePos); // Emit the signal
+    QGraphicsView::mouseDoubleClickEvent(event);
 }
