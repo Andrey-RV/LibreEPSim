@@ -62,7 +62,7 @@ private:
 
     // Line drawing
     bool lineDrawing = false;
-    QGraphicsLineItem* currentLine;
+    QGraphicsLineItem* currentLine = nullptr;
     QPointF startPoint;
     Qt::Orientation constraintDirection = Qt::Horizontal;
 

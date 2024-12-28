@@ -59,16 +59,15 @@ void MainWindow::on_actiontrafo_triggered()
 
 void MainWindow::createComponent(const QString& imagePath)
 {
-    QPixmap component(imagePath);
-    QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(component);
+    QPixmap componentPixmap(imagePath);
+    currentComponent = new QGraphicsPixmapItem(componentPixmap);
 
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
     QPointF gridSnappedPos = snapToGrid(mousePos, 7);
-    newItem->setPos(gridSnappedPos - QPointF(component.width() / 2, component.height() / 2));
-    newItem->setTransformationMode(Qt::SmoothTransformation);
-    graphicsScene->addItem(newItem);
+    currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
+    currentComponent->setTransformationMode(Qt::SmoothTransformation);
+    graphicsScene->addItem(currentComponent);
 
-    currentComponent = newItem;
     componentIsMoving = true;
     setCursor(Qt::BlankCursor);
 
@@ -287,8 +286,25 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         case Qt::Key_T:
             MainWindow::on_actiontrafo_triggered();
             break;
+        case Qt::Key_L:
+            MainWindow::on_actionline_triggered();
+            break;
         case Qt::Key_Escape:
-            //! Todo: Implement the escaping routine
+            if (currentLine) {
+                graphicsScene->removeItem(currentLine);
+                delete currentLine;
+                currentLine = nullptr;
+                lineDrawing = false;
+                qDebug() << "Removed a line";
+            }
+            if (currentComponent) {
+                graphicsScene->removeItem(currentComponent);
+                delete currentComponent;
+                currentComponent = nullptr;
+                componentIsMoving = false;
+                unsetCursor();
+                qDebug() << "Removed a component";
+            }
             break;
         default:
             break;
