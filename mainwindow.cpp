@@ -61,8 +61,10 @@ void MainWindow::createComponent(const QString& imagePath)
 {
     QPixmap component(imagePath);
     QGraphicsPixmapItem *newItem = new QGraphicsPixmapItem(component);
+
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-    newItem->setPos(mousePos - QPointF(component.width() / 2, component.height() / 2));
+    QPointF gridSnappedPos = snapToGrid(mousePos, 7);
+    newItem->setPos(gridSnappedPos - QPointF(component.width() / 2, component.height() / 2));
     newItem->setTransformationMode(Qt::SmoothTransformation);
     graphicsScene->addItem(newItem);
 
@@ -75,11 +77,19 @@ void MainWindow::createComponent(const QString& imagePath)
     }
 }
 
+QPointF MainWindow::snapToGrid(const QPointF& point, qreal gridSize)
+{
+    qreal x = qRound(point.x() / gridSize) * gridSize;
+    qreal y = qRound(point.y() / gridSize) * gridSize;
+    return QPointF(x, y);
+}
+
 void MainWindow::updateImagePosition()
 {
     if (componentIsMoving && currentComponent) {
         QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-        currentComponent->setPos(mousePos - QPointF(currentComponent->pixmap().width() / 2, currentComponent->pixmap().height() / 2));
+        QPointF gridSnappedPos = snapToGrid(mousePos, 7);
+        currentComponent->setPos(gridSnappedPos - QPointF(currentComponent->pixmap().width() / 2, currentComponent->pixmap().height() / 2));
     }
 }
 
@@ -103,25 +113,14 @@ QPointF MainWindow::findNearestTerminal(const QPointF &point, bool &snapped)
     return nearestTerminal;
 }
 
-void MainWindow::onMousePressed(const QPointF &scenePos)
-{
-    if (lineDrawing) {
-        drawNextLine(scenePos);
-    }
-
-    if (componentIsMoving && currentComponent) {
-        placeComponent();
-    }
-}
-
 void MainWindow::drawNextLine(const QPointF &scenePos) {
     if (!currentLine) {
-        startPoint = scenePos;
+        startPoint = snapToGrid(scenePos, 7);
         currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
         currentLine->setPen(QPen(Qt::black, 2));
         graphicsScene->addItem(currentLine);
     } else {
-        QPointF endPoint = scenePos;
+        QPointF endPoint = snapToGrid(scenePos, 7);;
         // Enforce the active constraint
         if (constraintDirection == Qt::Horizontal) {
             endPoint.setY(startPoint.y());  // Horizontal constraint
@@ -165,10 +164,22 @@ void MainWindow::placeComponent() {
     unsetCursor();
 }
 
+void MainWindow::onMousePressed(const QPointF &scenePos)
+{
+    if (lineDrawing) {
+        drawNextLine(scenePos);
+    }
+
+    if (componentIsMoving && currentComponent) {
+        placeComponent();
+    }
+}
+
 void MainWindow::onMouseMoved(const QPointF &scenePos)
 {
     if (lineDrawing && currentLine) {
-        QLineF newLine(startPoint, scenePos);
+        QPointF activePos = snapToGrid(scenePos, 7);
+        QLineF newLine(startPoint, activePos);
 
         // Restrict to horizontal or vertical based on initial movement
         if (constraintDirection == static_cast<Qt::Orientation>(-1)) {
@@ -181,9 +192,9 @@ void MainWindow::onMouseMoved(const QPointF &scenePos)
 
         // Enforce the active constraint
         if (constraintDirection == Qt::Horizontal) {
-            newLine.setP2(QPointF(scenePos.x(), startPoint.y()));  // Horizontal
+            newLine.setP2(QPointF(activePos.x(), startPoint.y()));  // Horizontal
         } else if (constraintDirection == Qt::Vertical) {
-            newLine.setP2(QPointF(startPoint.x(), scenePos.y()));  // Vertical
+            newLine.setP2(QPointF(startPoint.x(), activePos.y()));  // Vertical
         }
 
         currentLine->setLine(newLine);
@@ -275,6 +286,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_T:
             MainWindow::on_actiontrafo_triggered();
+            break;
+        case Qt::Key_Escape:
+            //! Todo: Implement the escaping routine
             break;
         default:
             break;

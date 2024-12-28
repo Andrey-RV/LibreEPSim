@@ -42,6 +42,7 @@ private:
     void createComponent(const QString& imagePath);
     void placeComponent();
     void drawNextLine(const QPointF &scenePos);
+    QPointF snapToGrid(const QPointF &point, qreal gridSize);
     QPointF findNearestTerminal(const QPointF &point, bool &snapped);
     void updateImagePosition();
     void zoomIn();
@@ -69,6 +70,7 @@ private:
     double currentZoomFactor = 1.0;
     const double maxZoomFactor = 1.2;
     const double minZoomFactor = 0.2;
+
 
 
 };
