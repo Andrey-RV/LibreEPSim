@@ -104,7 +104,6 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
     }
 
     if (componentIsMoving && currentComponent) {
-        componentIsMoving = false;
         placeComponent();
     }
 }
@@ -137,6 +136,8 @@ void MainWindow::drawNextLine(const QPointF &scenePos) {
 }
 
 void MainWindow::placeComponent() {
+    componentIsMoving = false;
+
     if (moveTimer->isActive()) {
         moveTimer->stop();
     }
