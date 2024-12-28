@@ -28,6 +28,7 @@ private slots:
     void on_actiongen_triggered();
     void on_actionbus_triggered();
     void on_actionline_triggered();
+    void on_actiontrafo_triggered();
     void onMouseMoved(const QPointF &scenePos); // Slot for mouse movement
     void onMousePressed(const QPointF &scenePos); // Slot for mouse press
     void onMouseDoubleClicked(const QPointF &scenePos);
@@ -39,6 +40,8 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void createComponent(const QString& imagePath);
+    void placeComponent();
+    void drawNextLine(const QPointF &scenePos);
     QPointF findNearestTerminal(const QPointF &point, bool &snapped);
     void updateImagePosition();
     void zoomIn();
@@ -49,6 +52,7 @@ private:
         QGraphicsPixmapItem *item;
         QList<QPointF> terminals; // List of terminal positions
     };
+
     QList<Component> components;
     QGraphicsPixmapItem *currentComponent = nullptr;
     QList<QGraphicsPixmapItem*> componentsItems;
@@ -66,7 +70,6 @@ private:
     const double maxZoomFactor = 1.2;
     const double minZoomFactor = 0.2;
 
-    void placeComponent();
-    void drawNextLine(const QPointF &scenePos);
+
 };
 #endif // MAINWINDOW_H

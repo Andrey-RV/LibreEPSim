@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->toolBar->setFloatable(false);
     ui->toolBar->setMovable(false);
+    showMaximized();
 
     graphicsView = new MyGraphicsView();
     graphicsScene = new QGraphicsScene(this);
@@ -49,6 +50,11 @@ void MainWindow::on_actionline_triggered()
 {
     lineDrawing = true;
     currentLine = nullptr;
+}
+
+void MainWindow::on_actiontrafo_triggered()
+{
+    createComponent(":Icons/trafo2.png");
 }
 
 void MainWindow::createComponent(const QString& imagePath)
@@ -258,5 +264,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Minus) {
         zoomOut();
+    }
+    else {
+        switch (event->key()) {
+        case Qt::Key_G:
+            MainWindow::on_actiongen_triggered();
+            break;
+        case Qt::Key_B:
+            MainWindow::on_actionbus_triggered();
+            break;
+        case Qt::Key_T:
+            MainWindow::on_actiontrafo_triggered();
+            break;
+        default:
+            break;
+        }
     }
 }

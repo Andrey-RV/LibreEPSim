@@ -5,5 +5,7 @@
         <file>Icons/gen.png</file>
         <file>Icons/bus2.png</file>
         <file>Icons/line.png</file>
+        <file>Icons/trafo.png</file>
+        <file>Icons/trafo2.png</file>
     </qresource>
 </RCC>

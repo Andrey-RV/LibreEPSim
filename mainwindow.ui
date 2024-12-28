@@ -66,6 +66,7 @@
    <addaction name="actiongen"/>
    <addaction name="actionbus"/>
    <addaction name="actionline"/>
+   <addaction name="actiontrafo"/>
   </widget>
   <action name="actionOpen">
    <property name="text">
@@ -122,6 +123,18 @@
    </property>
    <property name="text">
     <string>line</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actiontrafo">
+   <property name="icon">
+    <iconset resource="components_icons.qrc">
+     <normaloff>:/Icons/trafo.png</normaloff>:/Icons/trafo.png</iconset>
+   </property>
+   <property name="text">
+    <string>trafo</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
