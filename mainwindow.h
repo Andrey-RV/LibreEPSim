@@ -66,5 +66,7 @@ private:
     const double maxZoomFactor = 1.2;
     const double minZoomFactor = 0.2;
 
+    void placeComponent();
+    void drawNextLine(const QPointF &scenePos);
 };
 #endif // MAINWINDOW_H

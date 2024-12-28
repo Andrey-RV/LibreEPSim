@@ -100,61 +100,62 @@ QPointF MainWindow::findNearestTerminal(const QPointF &point, bool &snapped)
 void MainWindow::onMousePressed(const QPointF &scenePos)
 {
     if (lineDrawing) {
-        if (!currentLine) {
-            startPoint = scenePos;
-            currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
-            currentLine->setPen(QPen(Qt::black, 2));
-            graphicsScene->addItem(currentLine);
-        } else {
-            QPointF endPoint = scenePos;
-            // Enforce the active constraint
-            if (constraintDirection == Qt::Horizontal) {
-                endPoint.setY(startPoint.y());  // Horizontal constraint
-            } else if (constraintDirection == Qt::Vertical) {
-                endPoint.setX(startPoint.x());  // Vertical constraint
-            }
-
-            QLineF newLine(startPoint, endPoint);
-            currentLine->setLine(newLine);
-
-            // Prepare for the next line
-            startPoint = endPoint;
-            currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
-            currentLine->setPen(QPen(Qt::black, 2));
-            graphicsScene->addItem(currentLine);
-            constraintDirection = static_cast<Qt::Orientation>(-1);  // Reset to no direction defined
-        }
+        drawNextLine(scenePos);
     }
 
     if (componentIsMoving && currentComponent) {
         componentIsMoving = false;
-
-        if (moveTimer->isActive()) {
-            moveTimer->stop();
-        }
-
-        Component newComponent;
-        newComponent.item = currentComponent;
-        newComponent.terminals = {
-            // !TODO: These coordinates only work for the generator. Need to be generalized for other components
-            QPointF(30, 3),  // Up terminal
-            QPointF(30, 79)   // Down terminal
-        };
-
-        for (QPointF &terminal : newComponent.terminals) {
-            terminal = currentComponent->mapToScene(terminal);
-        }
-
-        components.append(newComponent);
-
-        qDebug() << "Component added at (scene):" << currentComponent->scenePos();
-        for (const QPointF &terminal : newComponent.terminals) {
-            qDebug() << "Terminal position in scene:" << terminal;
-        }
-
-        currentComponent = nullptr;
-        unsetCursor();
+        placeComponent();
     }
+}
+
+void MainWindow::drawNextLine(const QPointF &scenePos) {
+    if (!currentLine) {
+        startPoint = scenePos;
+        currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
+        currentLine->setPen(QPen(Qt::black, 2));
+        graphicsScene->addItem(currentLine);
+    } else {
+        QPointF endPoint = scenePos;
+        // Enforce the active constraint
+        if (constraintDirection == Qt::Horizontal) {
+            endPoint.setY(startPoint.y());  // Horizontal constraint
+        } else if (constraintDirection == Qt::Vertical) {
+            endPoint.setX(startPoint.x());  // Vertical constraint
+        }
+
+        QLineF newLine(startPoint, endPoint);
+        currentLine->setLine(newLine);
+
+        // Prepare for the next line
+        startPoint = endPoint;
+        currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
+        currentLine->setPen(QPen(Qt::black, 2));
+        graphicsScene->addItem(currentLine);
+        constraintDirection = static_cast<Qt::Orientation>(-1);  // Reset to no direction defined
+    }
+}
+
+void MainWindow::placeComponent() {
+    if (moveTimer->isActive()) {
+        moveTimer->stop();
+    }
+
+    Component newComponent;
+    newComponent.item = currentComponent;
+    newComponent.terminals = {
+        // !TODO: These coordinates only work for the generator. Need to be generalized for other components
+        QPointF(30, 3),  // Up terminal
+        QPointF(30, 79)   // Down terminal
+    };
+
+    for (QPointF &terminal : newComponent.terminals) {
+        terminal = currentComponent->mapToScene(terminal);
+    }
+
+    components.append(newComponent);
+    currentComponent = nullptr;
+    unsetCursor();
 }
 
 void MainWindow::onMouseMoved(const QPointF &scenePos)
@@ -223,9 +224,6 @@ void MainWindow::onMouseDoubleClicked(const QPointF &scenePos)
         // Finalize the line
         QLineF newLine(startPoint, endPoint);
         currentLine->setLine(newLine);
-
-        // Debugging
-        qDebug() << "Line finalized from:" << startPoint << "to:" << endPoint;
 
         // Reset for the next action
         lineDrawing = false;
