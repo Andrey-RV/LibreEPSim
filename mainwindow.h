@@ -32,32 +32,39 @@ private slots:
     void onMousePressed(const QPointF &scenePos); // Slot for mouse press
     void onMouseDoubleClicked(const QPointF &scenePos);
 
-protected:
-    void keyPressEvent(QKeyEvent *event);
-    void createComponent(const QString& imagePath);
-    void updateImagePosition();
-    void zoomIn();
-    void zoomOut();
-
 private:
     Ui::MainWindow *ui;    
     MyGraphicsView *graphicsView = nullptr;
     QGraphicsScene *graphicsScene = nullptr;
 
-    double currentZoomFactor = 1.0; // Start at 100% zoom
-    const double maxZoomFactor = 1.2; // Maximum 500% zoom
-    const double minZoomFactor = 0.2; // Minimum 20% zoom
+    void keyPressEvent(QKeyEvent *event);
+    void createComponent(const QString& imagePath);
+    QPointF findNearestTerminal(const QPointF &point, bool &snapped);
+    void updateImagePosition();
+    void zoomIn();
+    void zoomOut();
 
-    QGraphicsPixmapItem *currentItem = nullptr; // Currently dragged item
-    QList<QGraphicsPixmapItem*> componentsItems; // List of all items
+    // Component placement
+    struct Component {
+        QGraphicsPixmapItem *item;
+        QList<QPointF> terminals; // List of terminal positions
+    };
+    QList<Component> components;
+    QGraphicsPixmapItem *currentComponent = nullptr;
+    QList<QGraphicsPixmapItem*> componentsItems;
     bool componentIsMoving = false;
-    QPoint lastMousePos;
-
     QTimer *moveTimer = nullptr; // Timer for updating image position
 
+    // Line drawing
     bool lineDrawing = false;
     QGraphicsLineItem* currentLine;
     QPointF startPoint;
     Qt::Orientation constraintDirection = Qt::Horizontal;
+
+    // Screen zooming
+    double currentZoomFactor = 1.0;
+    const double maxZoomFactor = 1.2;
+    const double minZoomFactor = 0.2;
+
 };
 #endif // MAINWINDOW_H
