@@ -34,6 +34,14 @@ private slots:
     void onMouseDoubleClicked(const QPointF &scenePos);
 
 private:
+
+    static constexpr qreal GRID_SIZE = 7.0;
+    static constexpr qreal SNAP_THRESHOLD = 15.0;
+    static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
+    static constexpr qreal ZOOM_STEP = 1.1;
+    static constexpr qreal MIN_ZOOM = 0.5;
+    static constexpr qreal MAX_ZOOM = 2.0;
+
     Ui::MainWindow *ui;    
     MyGraphicsView *graphicsView = nullptr;
     QGraphicsScene *graphicsScene = nullptr;

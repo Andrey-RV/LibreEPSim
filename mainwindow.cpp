@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(graphicsView);
 
     moveTimer = new QTimer(this);
-    moveTimer->setInterval(16);  // 60 FPS timer for smooth movement
+    moveTimer->setInterval(TIMER_INTERVAL);  // 60 FPS timer for smooth movement
 
     connect(graphicsView, &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
     connect(graphicsView, &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
@@ -63,7 +63,7 @@ void MainWindow::createComponent(const QString& imagePath)
     currentComponent = new QGraphicsPixmapItem(componentPixmap);
 
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-    QPointF gridSnappedPos = snapToGrid(mousePos, 7);
+    QPointF gridSnappedPos = snapToGrid(mousePos, GRID_SIZE);
     currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
     currentComponent->setTransformationMode(Qt::SmoothTransformation);
     graphicsScene->addItem(currentComponent);
@@ -87,14 +87,14 @@ void MainWindow::updateImagePosition()
 {
     if (componentIsMoving && currentComponent) {
         QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-        QPointF gridSnappedPos = snapToGrid(mousePos, 7);
+        QPointF gridSnappedPos = snapToGrid(mousePos, GRID_SIZE);
         currentComponent->setPos(gridSnappedPos - QPointF(currentComponent->pixmap().width() / 2, currentComponent->pixmap().height() / 2));
     }
 }
 
 QPointF MainWindow::findNearestTerminal(const QPointF &point, bool &snapped)
 {
-    const qreal snapThreshold = 15.0; // Distance within which snapping occurs
+    const qreal snapThreshold = SNAP_THRESHOLD; // Distance within which snapping occurs
     QPointF nearestTerminal;
     qreal minDistance = snapThreshold;
     snapped = false;
@@ -114,12 +114,12 @@ QPointF MainWindow::findNearestTerminal(const QPointF &point, bool &snapped)
 
 void MainWindow::drawNextLine(const QPointF &scenePos) {
     if (!currentLine) {
-        startPoint = snapToGrid(scenePos, 7);
+        startPoint = snapToGrid(scenePos, GRID_SIZE);
         currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
         currentLine->setPen(QPen(Qt::black, 2));
         graphicsScene->addItem(currentLine);
     } else {
-        QPointF endPoint = snapToGrid(scenePos, 7);;
+        QPointF endPoint = snapToGrid(scenePos, GRID_SIZE);;
         // Enforce the active constraint
         if (constraintDirection == Qt::Horizontal) {
             endPoint.setY(startPoint.y());  // Horizontal constraint
@@ -177,7 +177,7 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
 void MainWindow::onMouseMoved(const QPointF &scenePos)
 {
     if (lineDrawing && currentLine) {
-        QPointF activePos = snapToGrid(scenePos, 7);
+        QPointF activePos = snapToGrid(scenePos, GRID_SIZE);
         QLineF newLine(startPoint, activePos);
 
         // Restrict to horizontal or vertical based on initial movement
@@ -251,8 +251,8 @@ void MainWindow::onMouseDoubleClicked(const QPointF &scenePos)
 
 void MainWindow::zoomIn()
 {
-    const double zoomStep = 1.1; // 20% zoom increment
-    if (currentZoomFactor * zoomStep <= maxZoomFactor) {
+    const double zoomStep = ZOOM_STEP; // 20% zoom increment
+    if (currentZoomFactor * zoomStep <= MAX_ZOOM) {
         graphicsView->scale(zoomStep, zoomStep);
         currentZoomFactor *= zoomStep;
     }
@@ -260,8 +260,8 @@ void MainWindow::zoomIn()
 
 void MainWindow::zoomOut()
 {
-    const double zoomStep = 1.1; // 20% zoom decrement
-    if (currentZoomFactor / zoomStep >= minZoomFactor) {
+    const double zoomStep = ZOOM_STEP; // 20% zoom decrement
+    if (currentZoomFactor / zoomStep >= MIN_ZOOM) {
         graphicsView->scale(1 / zoomStep, 1 / zoomStep);
         currentZoomFactor /= zoomStep;
     }
