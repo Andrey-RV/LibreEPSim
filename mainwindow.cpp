@@ -176,6 +176,12 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
 
 void MainWindow::onMouseMoved(const QPointF &scenePos)
 {
+    static QElapsedTimer lastUpdate;
+    if (lastUpdate.isValid() && lastUpdate.elapsed() < 16) { // ~60 FPS
+        return;
+    }
+    lastUpdate.restart();
+
     if (lineDrawing && currentLine) {
         QPointF activePos = snapToGrid(scenePos, GRID_SIZE);
         QLineF newLine(startPoint, activePos);
