@@ -38,6 +38,7 @@ private:
     static constexpr qreal GRID_SIZE = 7.0;
     static constexpr qreal SNAP_THRESHOLD = 15.0;
     static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
+    static constexpr qreal INITIAL_ZOOM = 1.0;
     static constexpr qreal ZOOM_STEP = 1.1;
     static constexpr qreal MIN_ZOOM = 0.5;
     static constexpr qreal MAX_ZOOM = 2.0;
@@ -45,11 +46,12 @@ private:
     Ui::MainWindow *ui;    
     MyGraphicsView *graphicsView = nullptr;
     QGraphicsScene *graphicsScene = nullptr;
+    qreal currentZoomFactor = 1.0;
 
     void keyPressEvent(QKeyEvent *event);
-    void createComponent(const QString& imagePath);
-    void placeComponent();
-    void drawNextLine(const QPointF &scenePos);
+    void startComponentPlacement(const QString& imagePath);
+    void finalizeComponentPlacement()();
+    void updateLineDrawing()(const QPointF &scenePos);
     QPointF snapToGrid(const QPointF &point, qreal gridSize);
     QPointF findNearestTerminal(const QPointF &point, bool &snapped);
     void updateImagePosition();
@@ -73,13 +75,5 @@ private:
     QGraphicsLineItem* currentLine = nullptr;
     QPointF startPoint;
     Qt::Orientation constraintDirection = Qt::Horizontal;
-
-    // Screen zooming
-    double currentZoomFactor = 1.0;
-    const double maxZoomFactor = 1.2;
-    const double minZoomFactor = 0.2;
-
-
-
 };
 #endif // MAINWINDOW_H

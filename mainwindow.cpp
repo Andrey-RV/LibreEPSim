@@ -38,12 +38,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actiongen_triggered()
 {
-    createComponent(":Icons/gen.png");
+    startComponentPlacement(":Icons/gen.png");
 }
 
 void MainWindow::on_actionbus_triggered()
 {
-    createComponent(":Icons/bus2.png");
+    startComponentPlacement(":Icons/bus2.png");
 }
 
 void MainWindow::on_actionline_triggered()
@@ -54,12 +54,16 @@ void MainWindow::on_actionline_triggered()
 
 void MainWindow::on_actiontrafo_triggered()
 {
-    createComponent(":Icons/trafo2.png");
+    startComponentPlacement(":Icons/trafo2.png");
 }
 
-void MainWindow::createComponent(const QString& imagePath)
+void MainWindow::startComponentPlacement(const QString& imagePath)
 {
     QPixmap componentPixmap(imagePath);
+    if (componentPixmap.isNull()) {
+        qWarning() << "Failed to load component image:" << imagePath;
+        return;
+    }
     currentComponent = new QGraphicsPixmapItem(componentPixmap);
 
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
@@ -112,7 +116,7 @@ QPointF MainWindow::findNearestTerminal(const QPointF &point, bool &snapped)
     return nearestTerminal;
 }
 
-void MainWindow::drawNextLine(const QPointF &scenePos) {
+void MainWindow::updateLineDrawing(const QPointF &scenePos) {
     if (!currentLine) {
         startPoint = snapToGrid(scenePos, GRID_SIZE);
         currentLine = new QGraphicsLineItem(QLineF(startPoint, startPoint));
@@ -139,7 +143,7 @@ void MainWindow::drawNextLine(const QPointF &scenePos) {
     }
 }
 
-void MainWindow::placeComponent() {
+void MainWindow::finalizeComponentPlacement()() {
     componentIsMoving = false;
 
     if (moveTimer->isActive()) {
@@ -170,7 +174,7 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
     }
 
     if (componentIsMoving && currentComponent) {
-        placeComponent();
+        finalizeComponentPlacement()();
     }
 }
 
