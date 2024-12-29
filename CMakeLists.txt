@@ -25,6 +25,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         components_icons.qrc
         mygraphicsview.h mygraphicsview.cpp
+        linedrawer.h linedrawer.cpp
+        componentmanager.h componentmanager.cpp
 
 
 
