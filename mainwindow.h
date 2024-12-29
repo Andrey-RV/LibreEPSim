@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include "mygraphicsview.h"
+#include "linedrawer.h"
+#include "grid.h"
 #include <QMainWindow>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -34,9 +36,6 @@ private slots:
     void onMouseDoubleClicked(const QPointF &scenePos);
 
 private:
-
-    static constexpr qreal GRID_SIZE = 7.0;
-    static constexpr qreal SNAP_THRESHOLD = 15.0;
     static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
     static constexpr qreal INITIAL_ZOOM = 1.0;
     static constexpr qreal ZOOM_STEP = 1.1;
@@ -47,33 +46,20 @@ private:
     MyGraphicsView *graphicsView = nullptr;
     QGraphicsScene *graphicsScene = nullptr;
     qreal currentZoomFactor = 1.0;
+    Grid grid;
+    LineDrawer *lineDrawer;
+    ComponentManager *newComponent;
 
     void keyPressEvent(QKeyEvent *event);
     void startComponentPlacement(const QString& imagePath);
-    void finalizeComponentPlacement()();
-    void updateLineDrawing()(const QPointF &scenePos);
-    QPointF snapToGrid(const QPointF &point, qreal gridSize);
-    QPointF findNearestTerminal(const QPointF &point, bool &snapped);
+    void finalizeComponentPlacement();
     void updateImagePosition();
     void zoomIn();
     void zoomOut();
 
-    // Component placement
-    struct Component {
-        QGraphicsPixmapItem *item;
-        QList<QPointF> terminals; // List of terminal positions
-    };
-
-    QList<Component> components;
     QGraphicsPixmapItem *currentComponent = nullptr;
     QList<QGraphicsPixmapItem*> componentsItems;
     bool componentIsMoving = false;
     QTimer *moveTimer = nullptr; // Timer for updating image position
-
-    // Line drawing
-    bool lineDrawing = false;
-    QGraphicsLineItem* currentLine = nullptr;
-    QPointF startPoint;
-    Qt::Orientation constraintDirection = Qt::Horizontal;
 };
 #endif // MAINWINDOW_H
