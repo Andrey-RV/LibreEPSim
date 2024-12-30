@@ -9,18 +9,19 @@
 class LineDrawer
 {
 public:
-    LineDrawer();
+    LineDrawer(QGraphicsScene* graphicsScene);
     void startDrawing();
-    void changeLineDirection(QGraphicsScene* graphicsScene, const QPointF &scenePos);
+    void changeLineDirection(const QPointF &scenePos);
     void continueLineDrawing(const QPointF &scenePos);
     QPointF findNearestTerminal(const QPointF &point, bool &snapped, QList<ComponentManager::Component> components);
     void finalizeLine(const QPointF &scenePos, QList<ComponentManager::Component> components);
-    void cancelDrawing(QGraphicsScene* graphicsScene);
+    void cancelDrawing();
 
     bool getLineDrawing() const;
     QGraphicsLineItem *getCurrentLine() const;
 
 private:
+    QGraphicsScene* graphicsScene;
     Grid grid;
     bool lineDrawing = false;
     QGraphicsLineItem* currentLine = nullptr;

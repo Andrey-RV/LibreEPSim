@@ -36,8 +36,6 @@ private slots:
     void onMouseDoubleClicked(const QPointF &scenePos);
 
 private:
-    static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
-    static constexpr qreal INITIAL_ZOOM = 1.0;
     static constexpr qreal ZOOM_STEP = 1.1;
     static constexpr qreal MIN_ZOOM = 0.5;
     static constexpr qreal MAX_ZOOM = 2.0;
@@ -48,18 +46,10 @@ private:
     qreal currentZoomFactor = 1.0;
     Grid grid;
     LineDrawer *lineDrawer;
-    ComponentManager *newComponent;
+    ComponentManager *componentManager;
 
     void keyPressEvent(QKeyEvent *event);
-    void startComponentPlacement(const QString& imagePath);
-    void finalizeComponentPlacement();
-    void updateImagePosition();
     void zoomIn();
     void zoomOut();
-
-    QGraphicsPixmapItem *currentComponent = nullptr;
-    QList<QGraphicsPixmapItem*> componentsItems;
-    bool componentIsMoving = false;
-    QTimer *moveTimer = nullptr; // Timer for updating image position
 };
 #endif // MAINWINDOW_H

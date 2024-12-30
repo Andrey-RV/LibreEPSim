@@ -14,9 +14,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->setMovable(false);
     showMaximized();
 
-    lineDrawer = new LineDrawer();
-    newComponent = new ComponentManager();
-
     graphicsView = new MyGraphicsView();
     graphicsScene = new QGraphicsScene(this);
     graphicsView->setScene(graphicsScene);
@@ -24,37 +21,40 @@ MainWindow::MainWindow(QWidget *parent)
     graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    lineDrawer = new LineDrawer(graphicsScene);
+    componentManager = new ComponentManager(graphicsView, graphicsScene);
+
     setCentralWidget(graphicsView);
 
-    moveTimer = new QTimer(this);
-    moveTimer->setInterval(TIMER_INTERVAL);  // 60 FPS timer for smooth movement
+    componentManager->setMoveTimer(new QTimer(this));
+    componentManager->getMoveTimer()->setInterval(componentManager->TIMER_INTERVAL);  // 60 FPS timer for smooth movement
 
     connect(graphicsView, &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
     connect(graphicsView, &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
     connect(graphicsView, &MyGraphicsView::mouseDoubleClicked, this, &MainWindow::onMouseDoubleClicked);
-    connect(moveTimer, &QTimer::timeout, this, &MainWindow::updateImagePosition);
+    connect(componentManager->getMoveTimer(), &QTimer::timeout, componentManager, &ComponentManager::updateImagePosition);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete lineDrawer;
-    delete newComponent;
+    delete componentManager;
 }
 
 void MainWindow::on_actiongen_triggered()
 {
-    startComponentPlacement(":Icons/gen.png");
+    componentManager->startComponentPlacement(":Icons/gen.png");
 }
 
 void MainWindow::on_actionbus_triggered()
 {
-    startComponentPlacement(":Icons/bus2.png");
+    componentManager->startComponentPlacement(":Icons/bus2.png");
 }
 
 void MainWindow::on_actiontrafo_triggered()
 {
-    startComponentPlacement(":Icons/trafo2.png");
+    componentManager->startComponentPlacement(":Icons/trafo2.png");
 }
 
 void MainWindow::on_actionline_triggered()
@@ -62,69 +62,14 @@ void MainWindow::on_actionline_triggered()
     lineDrawer->startDrawing();
 }
 
-void MainWindow::startComponentPlacement(const QString& imagePath)
-{
-    QPixmap componentPixmap(imagePath);
-    if (componentPixmap.isNull()) {
-        qWarning() << "Failed to load component image:" << imagePath;
-        return;
-    }
-    currentComponent = new QGraphicsPixmapItem(componentPixmap);
-
-    QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-    QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
-    currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
-    currentComponent->setTransformationMode(Qt::SmoothTransformation);
-    graphicsScene->addItem(currentComponent);
-
-    componentIsMoving = true;
-    setCursor(Qt::BlankCursor);
-
-    if (!moveTimer->isActive()) {
-        moveTimer->start(10);  // Update every 10 milliseconds
-    }
-}
-
-void MainWindow::updateImagePosition()
-{
-    if (componentIsMoving && currentComponent) {
-        QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
-        QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
-        currentComponent->setPos(gridSnappedPos - QPointF(currentComponent->pixmap().width() / 2, currentComponent->pixmap().height() / 2));
-    }
-}
-
-void MainWindow::finalizeComponentPlacement() {
-    componentIsMoving = false;
-
-    if (moveTimer->isActive()) {
-        moveTimer->stop();
-    }
-
-    newComponent->component.item = currentComponent;
-    newComponent->component.terminals = {
-        // !TODO: These coordinates only work for the generator. Need to be generalized for other components
-        QPointF(30, 3),  // Up terminal
-        QPointF(30, 79)   // Down terminal
-    };
-
-    for (QPointF &terminal : newComponent->component.terminals) {
-        terminal = currentComponent->mapToScene(terminal);
-    }
-
-    newComponent->appendComponent(newComponent->component);
-    currentComponent = nullptr;
-    unsetCursor();
-}
-
 void MainWindow::onMousePressed(const QPointF &scenePos)
 {
     if (lineDrawer->getLineDrawing()) {
-        lineDrawer->changeLineDirection(graphicsScene, scenePos);
+        lineDrawer->changeLineDirection(scenePos);
     }
 
-    if (componentIsMoving && currentComponent) {
-        finalizeComponentPlacement();
+    if (componentManager->getComponentIsMoving() && componentManager->getCurrentComponent()) {
+        componentManager->finalizeComponentPlacement();
     }
 }
 
@@ -144,7 +89,7 @@ void MainWindow::onMouseMoved(const QPointF &scenePos)
 void MainWindow::onMouseDoubleClicked(const QPointF &scenePos)
 {
     if (lineDrawer->getLineDrawing() && lineDrawer->getCurrentLine()) {
-        lineDrawer->finalizeLine(scenePos, newComponent->getComponents());
+        lineDrawer->finalizeLine(scenePos, componentManager->getComponents());
     }
 }
 
@@ -190,13 +135,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_Escape:
             if (lineDrawer->getCurrentLine()) {
-                lineDrawer->cancelDrawing(graphicsScene);
+                lineDrawer->cancelDrawing();
             }
-            if (currentComponent) {
-                graphicsScene->removeItem(currentComponent);
-                delete currentComponent;
-                currentComponent = nullptr;
-                componentIsMoving = false;
+            if (componentManager->getCurrentComponent()) {
+                graphicsScene->removeItem(componentManager->getCurrentComponent());
+                delete componentManager->getCurrentComponent();
+                componentManager->setCurrentComponent(nullptr);
+                componentManager->setComponentIsMoving(false);
                 unsetCursor();
             }
             break;

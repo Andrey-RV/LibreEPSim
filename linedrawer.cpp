@@ -3,7 +3,9 @@
 #include <QGraphicsLineItem>
 
 
-LineDrawer::LineDrawer() {}
+LineDrawer::LineDrawer(QGraphicsScene* graphicsScene)
+    : graphicsScene(graphicsScene)
+{}
 
 void LineDrawer::startDrawing()
 {
@@ -11,7 +13,7 @@ void LineDrawer::startDrawing()
     currentLine = nullptr;
 }
 
-void LineDrawer::changeLineDirection(QGraphicsScene* graphicsScene, const QPointF &scenePos)
+void LineDrawer::changeLineDirection(const QPointF &scenePos)
 {
     if (!currentLine) {
         startPoint = grid.snapToGrid(scenePos, grid.GRID_SIZE);
@@ -130,7 +132,7 @@ void LineDrawer::finalizeLine(const QPointF &scenePos, QList<ComponentManager::C
     currentLine = nullptr;
 }
 
-void LineDrawer::cancelDrawing(QGraphicsScene* graphicsScene)
+void LineDrawer::cancelDrawing()
 {
     graphicsScene->removeItem(currentLine);
     delete currentLine;
