@@ -6,16 +6,18 @@
 #include <QMainWindow>
 #include "mygraphicsview.h"
 #include "grid.h"
+#include <memory>
+#include <QTimer>
 
-class ComponentManager: public QMainWindow
+class ComponentManager : public QMainWindow
 {
     Q_OBJECT
 public:
-    ComponentManager(MyGraphicsView* graphicsView, QGraphicsScene* graphicsScene);
+    ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView, std::shared_ptr<QGraphicsScene> graphicsScene);
     static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
 
     struct Component {
-        QGraphicsPixmapItem *item;
+        std::shared_ptr<QGraphicsPixmapItem> item;
         QList<QPointF> terminals; // List of terminal positions
     } component;
 
@@ -27,8 +29,8 @@ public:
     bool getComponentIsMoving() const;
     void setComponentIsMoving(bool newComponentIsMoving);
 
-    QGraphicsPixmapItem *getCurrentComponent() const;
-    void setCurrentComponent(QGraphicsPixmapItem *newCurrentComponent);
+    std::shared_ptr<QGraphicsPixmapItem> getCurrentComponent() const;
+    void setCurrentComponent(std::shared_ptr<QGraphicsPixmapItem> newCurrentComponent);
 
     QTimer *getMoveTimer() const;
     void setMoveTimer(QTimer *newMoveTimer);
@@ -39,10 +41,10 @@ public slots:
 private:
     Grid grid;
     QList<Component> components;
-    QGraphicsPixmapItem *currentComponent = nullptr;
-    QList<QGraphicsPixmapItem*> componentsItems;
-    MyGraphicsView* graphicsView;
-    QGraphicsScene* graphicsScene;
+    std::shared_ptr<QGraphicsPixmapItem> currentComponent = nullptr;
+    QList<std::shared_ptr<QGraphicsPixmapItem>> componentsItems;
+    std::shared_ptr<MyGraphicsView> graphicsView;
+    std::shared_ptr<QGraphicsScene> graphicsScene;
     bool componentIsMoving = false;
     QTimer *moveTimer = nullptr;
 };

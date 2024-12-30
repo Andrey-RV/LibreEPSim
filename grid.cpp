@@ -1,7 +1,9 @@
 #include "grid.h"
 
-Grid::Grid() {}
+// The constructor is empty, so you could remove the definition.
+Grid::Grid() {} // This is not necessary
 
+// If you made snapToGrid static:
 QPointF Grid::snapToGrid(const QPointF &point, qreal gridSize)
 {
     qreal x = qRound(point.x() / gridSize) * gridSize;

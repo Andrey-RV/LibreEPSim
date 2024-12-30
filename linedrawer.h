@@ -3,13 +3,13 @@
 
 #include <QGraphicsScene>
 #include <QPointF>
+#include <memory> // Include for smart pointers
 #include "grid.h"
 #include "componentmanager.h"
 
-class LineDrawer
-{
+class LineDrawer {
 public:
-    LineDrawer(QGraphicsScene* graphicsScene);
+    LineDrawer(std::shared_ptr<QGraphicsScene> graphicsScene); // Use shared_ptr
     void startDrawing();
     void changeLineDirection(const QPointF &scenePos);
     void continueLineDrawing(const QPointF &scenePos);
@@ -21,10 +21,10 @@ public:
     QGraphicsLineItem *getCurrentLine() const;
 
 private:
-    QGraphicsScene* graphicsScene;
+    std::shared_ptr<QGraphicsScene> graphicsScene; // Use shared_ptr
     Grid grid;
     bool lineDrawing = false;
-    QGraphicsLineItem* currentLine = nullptr;
+    QGraphicsLineItem* currentLine = nullptr; // No need for smart pointer here
     QPointF startPoint;
     Qt::Orientation constraintDirection = static_cast<Qt::Orientation>(-1);
     static constexpr qreal SNAP_THRESHOLD = 15.0;

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "mygraphicsview.h"
 #include "./ui_mainwindow.h"
+#include "linedrawer.h"
 #include "componentmanager.h"
 #include <QMouseEvent>
 #include <QPixmap>
@@ -12,34 +13,32 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->toolBar->setFloatable(false);
     ui->toolBar->setMovable(false);
-    showMaximized();
+    // showMaximized();
 
-    graphicsView = new MyGraphicsView();
-    graphicsScene = new QGraphicsScene(this);
-    graphicsView->setScene(graphicsScene);
+    graphicsView = std::make_shared<MyGraphicsView>(this); // Create as shared_ptr
+    graphicsScene = std::make_shared<QGraphicsScene>(this);
+    graphicsView->setScene(graphicsScene.get());
     graphicsView->setStyleSheet("background-color: white;");
     graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    lineDrawer = new LineDrawer(graphicsScene);
-    componentManager = new ComponentManager(graphicsView, graphicsScene);
+    lineDrawer = std::make_unique<LineDrawer>(graphicsScene);
+    componentManager = std::make_unique<ComponentManager>(graphicsView, graphicsScene);
 
-    setCentralWidget(graphicsView);
+    setCentralWidget(graphicsView.get());
 
-    componentManager->setMoveTimer(new QTimer(this));
-    componentManager->getMoveTimer()->setInterval(componentManager->TIMER_INTERVAL);  // 60 FPS timer for smooth movement
+    componentManager->setMoveTimer(new QTimer(this)); // QTimer is managed by Qt's object hierarchy
+    componentManager->getMoveTimer()->setInterval(componentManager->TIMER_INTERVAL); // 60 FPS timer for smooth movement
 
-    connect(graphicsView, &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
-    connect(graphicsView, &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
-    connect(graphicsView, &MyGraphicsView::mouseDoubleClicked, this, &MainWindow::onMouseDoubleClicked);
-    connect(componentManager->getMoveTimer(), &QTimer::timeout, componentManager, &ComponentManager::updateImagePosition);
+    connect(graphicsView.get(), &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
+    connect(graphicsView.get(), &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
+    connect(graphicsView.get(), &MyGraphicsView::mouseDoubleClicked, this, &MainWindow::onMouseDoubleClicked);
+    connect(componentManager->getMoveTimer(), &QTimer::timeout, componentManager.get(), &ComponentManager::updateImagePosition);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete lineDrawer;
-    delete componentManager;
+    // Smart pointers will automatically handle deletion
 }
 
 void MainWindow::on_actiongen_triggered()
@@ -138,8 +137,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 lineDrawer->cancelDrawing();
             }
             if (componentManager->getCurrentComponent()) {
-                graphicsScene->removeItem(componentManager->getCurrentComponent());
-                delete componentManager->getCurrentComponent();
+                graphicsScene->removeItem(componentManager->getCurrentComponent().get());
+                // getCurrentComponent doesn't return a smart pointer, so we need to manage the memory depending on the implementation of componentManager
+                // delete componentManager->getCurrentComponent();
+                // componentManager->setCurrentComponent(nullptr);
                 componentManager->setCurrentComponent(nullptr);
                 componentManager->setComponentIsMoving(false);
                 unsetCursor();

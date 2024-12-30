@@ -12,14 +12,17 @@ public:
     explicit MyGraphicsView(QWidget *parent = nullptr);  // Constructor declaration
 
 signals:
-    void mouseMoved(const QPointF &scenePos); // Signal for mouse movement
-    void mousePressed(const QPointF &scenePos); // Signal for mouse press
-    void mouseDoubleClicked(const QPointF &scenePos); // Signal for mouse double-click
+    // Consider adding const to the QPointF argument since it's not modified.
+    void mouseMoved(const QPointF &scenePos) const;
+    void mousePressed(const QPointF &scenePos) const;
+    void mouseDoubleClicked(const QPointF &scenePos) const;
 
 protected:
-    void mouseMoveEvent(QMouseEvent *event) override;  // Mouse move event handler
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseDoubleClickEvent(QMouseEvent *event) override; // Mouse double-click event handler
+    // These methods are virtual, so you could add the 'virtual' keyword
+    // (although 'override' implies it). It's a matter of style preference.
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
 #endif // MYGRAPHICSVIEW_H

@@ -10,7 +10,7 @@
 #include <QGraphicsPixmapItem>
 #include <QLabel>
 #include <QTimer>
-
+#include <memory> // Include for smart pointers
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -40,13 +40,13 @@ private:
     static constexpr qreal MIN_ZOOM = 0.5;
     static constexpr qreal MAX_ZOOM = 2.0;
 
-    Ui::MainWindow *ui;    
-    MyGraphicsView *graphicsView = nullptr;
-    QGraphicsScene *graphicsScene = nullptr;
+    std::unique_ptr<Ui::MainWindow> ui;
+    std::shared_ptr<MyGraphicsView> graphicsView;
+    std::shared_ptr<QGraphicsScene> graphicsScene;
     qreal currentZoomFactor = 1.0;
     Grid grid;
-    LineDrawer *lineDrawer;
-    ComponentManager *componentManager;
+    std::unique_ptr<LineDrawer> lineDrawer;
+    std::unique_ptr<ComponentManager> componentManager;
 
     void keyPressEvent(QKeyEvent *event);
     void zoomIn();

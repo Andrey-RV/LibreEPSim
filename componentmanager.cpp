@@ -4,12 +4,10 @@
 #include <QGraphicsScene>
 #include <QTimer>
 
-
-ComponentManager::ComponentManager(MyGraphicsView* graphicsView, QGraphicsScene* graphicsScene)
+ComponentManager::ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView, std::shared_ptr<QGraphicsScene> graphicsScene)
     : graphicsView(graphicsView)
     , graphicsScene(graphicsScene)
 {}
-
 
 void ComponentManager::startComponentPlacement(const QString& imagePath)
 {
@@ -18,13 +16,13 @@ void ComponentManager::startComponentPlacement(const QString& imagePath)
         qWarning() << "Failed to load component image:" << imagePath;
         return;
     }
-    currentComponent = new QGraphicsPixmapItem(componentPixmap);
+    currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
 
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
     QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
     currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
     currentComponent->setTransformationMode(Qt::SmoothTransformation);
-    graphicsScene->addItem(currentComponent);
+    graphicsScene->addItem(currentComponent.get());
 
     componentIsMoving = true;
     graphicsView->setCursor(Qt::BlankCursor);
@@ -53,7 +51,7 @@ void ComponentManager::finalizeComponentPlacement() {
     }
 
     appendComponent(component);
-    currentComponent = nullptr;
+    currentComponent.reset();
     graphicsView->unsetCursor();
 }
 
@@ -81,12 +79,12 @@ void ComponentManager::setComponentIsMoving(bool newComponentIsMoving)
     componentIsMoving = newComponentIsMoving;
 }
 
-QGraphicsPixmapItem *ComponentManager::getCurrentComponent() const
+std::shared_ptr<QGraphicsPixmapItem> ComponentManager::getCurrentComponent() const
 {
     return currentComponent;
 }
 
-void ComponentManager::setCurrentComponent(QGraphicsPixmapItem *newCurrentComponent)
+void ComponentManager::setCurrentComponent(std::shared_ptr<QGraphicsPixmapItem> newCurrentComponent)
 {
     currentComponent = newCurrentComponent;
 }

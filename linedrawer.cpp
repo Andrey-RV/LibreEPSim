@@ -3,7 +3,7 @@
 #include <QGraphicsLineItem>
 
 
-LineDrawer::LineDrawer(QGraphicsScene* graphicsScene)
+LineDrawer::LineDrawer(std::shared_ptr<QGraphicsScene> graphicsScene)
     : graphicsScene(graphicsScene)
 {}
 
@@ -132,11 +132,12 @@ void LineDrawer::finalizeLine(const QPointF &scenePos, QList<ComponentManager::C
     currentLine = nullptr;
 }
 
-void LineDrawer::cancelDrawing()
-{
-    graphicsScene->removeItem(currentLine);
-    delete currentLine;
-    currentLine = nullptr;
+void LineDrawer::cancelDrawing() {
+    if (currentLine) {
+        graphicsScene->removeItem(currentLine);
+        delete currentLine;
+        currentLine = nullptr;
+    }
     lineDrawing = false;
     qDebug() << "Removed a line";
 }
