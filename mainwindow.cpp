@@ -143,7 +143,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 graphicsScene->removeItem(componentManager->getCurrentComponent().get());
                 componentManager->setCurrentComponent(nullptr);
                 componentManager->setComponentIsMoving(false);
-                unsetCursor();
+                graphicsView->unsetCursor();
             }
             break;
         default:
