@@ -14,16 +14,17 @@ class ComponentManager : public QMainWindow
     Q_OBJECT
 public:
     ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView, std::shared_ptr<QGraphicsScene> graphicsScene);
-    static constexpr int TIMER_INTERVAL = 16;  // 60 FPS
+    static constexpr int TIMER_INTERVAL = 16;  // 60 FPS (update every 16ms)
 
     struct Component {
         std::shared_ptr<QGraphicsPixmapItem> item;
-        QList<QPointF> terminals; // List of terminal positions
+        QList<QPointF> terminals;
     } component;
 
     void startComponentPlacement(const QString& imagePath);
     void finalizeComponentPlacement();
     void appendComponent(ComponentManager::Component c);
+
     QList<Component> getComponents() const;
 
     bool getComponentIsMoving() const;
@@ -49,4 +50,4 @@ private:
     QTimer *moveTimer = nullptr;
 };
 
-#endif // COMPONENTMANAGER_H
+#endif //

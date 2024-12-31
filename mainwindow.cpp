@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->toolBar->setFloatable(false);
     ui->toolBar->setMovable(false);
-    // showMaximized();
+    showMaximized();
 
-    graphicsView = std::make_shared<MyGraphicsView>(this); // Create as shared_ptr
+    graphicsView = std::make_shared<MyGraphicsView>(this);
     graphicsScene = std::make_shared<QGraphicsScene>(this);
     graphicsView->setScene(graphicsScene.get());
     graphicsView->setStyleSheet("background-color: white;");
@@ -27,8 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(graphicsView.get());
 
-    componentManager->setMoveTimer(new QTimer(this)); // QTimer is managed by Qt's object hierarchy
-    componentManager->getMoveTimer()->setInterval(componentManager->TIMER_INTERVAL); // 60 FPS timer for smooth movement
+    componentManager->setMoveTimer(new QTimer(this));
+    componentManager->getMoveTimer()->setInterval(componentManager->TIMER_INTERVAL);
 
     connect(graphicsView.get(), &MyGraphicsView::mouseMoved, this, &MainWindow::onMouseMoved);
     connect(graphicsView.get(), &MyGraphicsView::mousePressed, this, &MainWindow::onMousePressed);
@@ -36,10 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(componentManager->getMoveTimer(), &QTimer::timeout, componentManager.get(), &ComponentManager::updateImagePosition);
 }
 
-MainWindow::~MainWindow()
-{
-    // Smart pointers will automatically handle deletion
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::on_actiongen_triggered()
 {
@@ -94,7 +91,7 @@ void MainWindow::onMouseDoubleClicked(const QPointF &scenePos)
 
 void MainWindow::zoomIn()
 {
-    const double zoomStep = ZOOM_STEP; // 20% zoom increment
+    const qreal zoomStep = ZOOM_STEP; // 20% zoom increment
     if (currentZoomFactor * zoomStep <= MAX_ZOOM) {
         graphicsView->scale(zoomStep, zoomStep);
         currentZoomFactor *= zoomStep;
@@ -103,7 +100,7 @@ void MainWindow::zoomIn()
 
 void MainWindow::zoomOut()
 {
-    const double zoomStep = ZOOM_STEP; // 20% zoom decrement
+    const qreal zoomStep = ZOOM_STEP; // 20% zoom decrement
     if (currentZoomFactor / zoomStep >= MIN_ZOOM) {
         graphicsView->scale(1 / zoomStep, 1 / zoomStep);
         currentZoomFactor /= zoomStep;
@@ -112,11 +109,17 @@ void MainWindow::zoomOut()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Plus) {
-        zoomIn();
-    }
-    else if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Minus) {
-        zoomOut();
+    if (event->modifiers() & Qt::ControlModifier) {
+        switch (event->key()) {
+        case Qt::Key_Plus:
+            zoomIn();
+            break;
+        case Qt::Key_Minus:
+            zoomOut();
+            break;
+        default:
+            break;
+        }
     }
     else {
         switch (event->key()) {
@@ -138,9 +141,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
             if (componentManager->getCurrentComponent()) {
                 graphicsScene->removeItem(componentManager->getCurrentComponent().get());
-                // getCurrentComponent doesn't return a smart pointer, so we need to manage the memory depending on the implementation of componentManager
-                // delete componentManager->getCurrentComponent();
-                // componentManager->setCurrentComponent(nullptr);
                 componentManager->setCurrentComponent(nullptr);
                 componentManager->setComponentIsMoving(false);
                 unsetCursor();

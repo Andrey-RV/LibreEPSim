@@ -2,28 +2,28 @@
 #include <QMouseEvent>
 
 MyGraphicsView::MyGraphicsView(QWidget *parent)
-    : QGraphicsView(parent)  // Constructor definition
+    : QGraphicsView(parent)
 {
-    setMouseTracking(true);  // Enable mouse tracking for this view
+    setMouseTracking(true);
 }
 
 void MyGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
-    emit mouseMoved(scenePos); // Emit the signal
+    emit mouseMoved(scenePos);
     QGraphicsView::mouseMoveEvent(event);
 }
 
 void MyGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
-    emit mousePressed(scenePos); // Emit the signal
+    emit mousePressed(scenePos);
     QGraphicsView::mousePressEvent(event);
 }
 
 void MyGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
-    emit mouseDoubleClicked(scenePos); // Emit the signal
+    emit mouseDoubleClicked(scenePos);
     QGraphicsView::mouseDoubleClickEvent(event);
 }

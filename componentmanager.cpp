@@ -11,22 +11,24 @@ ComponentManager::ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView,
 
 void ComponentManager::startComponentPlacement(const QString& imagePath)
 {
+    // Load the component image
     QPixmap componentPixmap(imagePath);
     if (componentPixmap.isNull()) {
         qWarning() << "Failed to load component image:" << imagePath;
         return;
     }
-    currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
 
+    // Add component to the scene
+    currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
     QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
     currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
     currentComponent->setTransformationMode(Qt::SmoothTransformation);
     graphicsScene->addItem(currentComponent.get());
-
     componentIsMoving = true;
     graphicsView->setCursor(Qt::BlankCursor);
 
+    // Timer for image position update
     if (!moveTimer->isActive()) {
         moveTimer->start(10);  // Update every 10 milliseconds
     }
@@ -39,6 +41,7 @@ void ComponentManager::finalizeComponentPlacement() {
         moveTimer->stop();
     }
 
+    // Save the component in a list of structs
     component.item = currentComponent;
     component.terminals = {
         // !TODO: These coordinates only work for the generator. Need to be generalized for other components

@@ -10,7 +10,7 @@
 #include <QGraphicsPixmapItem>
 #include <QLabel>
 #include <QTimer>
-#include <memory> // Include for smart pointers
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,8 +31,8 @@ private slots:
     void on_actionbus_triggered();
     void on_actionline_triggered();
     void on_actiontrafo_triggered();
-    void onMouseMoved(const QPointF &scenePos); // Slot for mouse movement
-    void onMousePressed(const QPointF &scenePos); // Slot for mouse press
+    void onMouseMoved(const QPointF &scenePos);
+    void onMousePressed(const QPointF &scenePos);
     void onMouseDoubleClicked(const QPointF &scenePos);
 
 private:
@@ -52,4 +52,4 @@ private:
     void zoomIn();
     void zoomOut();
 };
-#endif // MAINWINDOW_H
+#endif
