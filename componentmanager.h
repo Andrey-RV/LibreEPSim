@@ -24,6 +24,7 @@ public:
     void startComponentPlacement(const QString& imagePath);
     void finalizeComponentPlacement();
     void appendComponent(ComponentManager::Component c);
+    void removeComponent(QGraphicsPixmapItem *item);
 
     QList<Component> getComponents() const;
 

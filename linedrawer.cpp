@@ -136,6 +136,10 @@ void LineDrawer::cancelDrawing() {
     constraintDirection = static_cast<Qt::Orientation>(-1);
 }
 
+void LineDrawer::removeLine(QGraphicsLineItem* item) {
+    graphicsScene->removeItem(item);
+}
+
 bool LineDrawer::getLineDrawing() const
 {
     return lineDrawing;

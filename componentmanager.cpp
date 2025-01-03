@@ -72,6 +72,22 @@ void ComponentManager::appendComponent(ComponentManager::Component c)
     this->components.append(c);
 }
 
+void ComponentManager::removeComponent(QGraphicsPixmapItem* item) {
+    for (auto& component : components) {
+        if (component.item.get() == item) {
+            graphicsScene->removeItem(component.item.get());
+
+            auto it = std::find_if(components.begin(), components.end(),
+                                   [&](const Component& c) { return c.item.get() == item; });
+            if (it != components.end()) {
+                components.erase(it);
+            }
+
+            break;
+        }
+    }
+}
+
 bool ComponentManager::getComponentIsMoving() const
 {
     return componentIsMoving;

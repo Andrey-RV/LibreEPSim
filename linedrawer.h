@@ -16,6 +16,7 @@ public:
     QPointF findNearestTerminal(const QPointF &point, bool &snapped, QList<ComponentManager::Component> components);
     void finalizeLine(const QPointF &scenePos, QList<ComponentManager::Component> components);
     void cancelDrawing();
+    void removeLine(QGraphicsLineItem *item);
 
     bool getLineDrawing() const;
     QGraphicsLineItem *getCurrentLine() const;

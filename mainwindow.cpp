@@ -73,13 +73,8 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
 
         if (item) {
             if (auto pixmapItem = dynamic_cast<QGraphicsPixmapItem*>(item)) {
-                for (int i = 0; i < componentManager->getComponents().size(); ++i) {
-                    if (componentManager->getComponents()[i].item.get() == pixmapItem) {
-                        graphicsScene->removeItem(componentManager->getComponents()[i].item.get());
-                        // components.removeAt(index);
-                        break;
-                    }
-                }
+                componentManager->removeComponent(pixmapItem);
+
             } else if (auto lineItem = dynamic_cast<QGraphicsLineItem*>(item)) {
                 graphicsScene->removeItem(lineItem);
                 delete lineItem;
