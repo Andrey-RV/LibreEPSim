@@ -9,22 +9,30 @@ ComponentManager::ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView,
     , graphicsScene(graphicsScene)
 {}
 
-void ComponentManager::startComponentPlacement(const QString& imagePath)
+void ComponentManager::startComponentPlacement(const QString& imagePath, QPixmap componentPixmap = QPixmap(),
+                                               std::shared_ptr<QGraphicsPixmapItem> component = nullptr)
 {
     // Load the component image
-    QPixmap componentPixmap(imagePath);
-    if (componentPixmap.isNull()) {
-        qWarning() << "Failed to load component image:" << imagePath;
-        return;
+    if (!component) {
+        QPixmap componentPixmap(imagePath);
+        if (componentPixmap.isNull()) {
+            qWarning() << "Failed to load component image:" << imagePath;
+            return;
+        }
+        currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
     }
 
-    // Add component to the scene
-    currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
+    else {
+        currentComponent = component;
+    }
+
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
     QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
     currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
     currentComponent->setTransformationMode(Qt::SmoothTransformation);
-    graphicsScene->addItem(currentComponent.get());
+    if (!graphicsScene->items().contains(currentComponent.get())) {
+       graphicsScene->addItem(currentComponent.get());
+    }
     componentIsMoving = true;
     graphicsView->setCursor(Qt::BlankCursor);
 
@@ -86,6 +94,11 @@ void ComponentManager::removeComponent(QGraphicsPixmapItem* item) {
             break;
         }
     }
+}
+
+void ComponentManager::startComponentMoving(std::shared_ptr<QGraphicsPixmapItem> item) {
+    componentIsMoving = true;
+    currentComponent = item;
 }
 
 bool ComponentManager::getComponentIsMoving() const

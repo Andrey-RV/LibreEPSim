@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->toolBar->setFloatable(false);
     ui->toolBar->setMovable(false);
-    showMaximized();
+    // showMaximized();
 
     graphicsView = std::make_shared<MyGraphicsView>(this);
     graphicsScene = std::make_shared<QGraphicsScene>(this);
@@ -40,17 +40,17 @@ MainWindow::~MainWindow() {}
 
 void MainWindow::on_actiongen_triggered()
 {
-    componentManager->startComponentPlacement(":Icons/gen.png");
+    componentManager->startComponentPlacement(":Icons/gen.png", QPixmap(), nullptr);
 }
 
 void MainWindow::on_actionbus_triggered()
 {
-    componentManager->startComponentPlacement(":Icons/bus2.png");
+    componentManager->startComponentPlacement(":Icons/bus2.png", QPixmap(), nullptr);
 }
 
 void MainWindow::on_actiontrafo_triggered()
 {
-    componentManager->startComponentPlacement(":Icons/trafo2.png");
+    componentManager->startComponentPlacement(":Icons/trafo2.png", QPixmap(), nullptr);
 }
 
 void MainWindow::on_actionline_triggered()
@@ -64,11 +64,11 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
         lineDrawer->changeLineDirection(scenePos);
     }
 
-    else if (componentManager->getComponentIsMoving() && componentManager->getCurrentComponent()) {
+    if (componentManager->getComponentIsMoving() && componentManager->getCurrentComponent()) {
         componentManager->finalizeComponentPlacement();
     }
 
-    else if (isDeletionMode) {
+    if (isDeletionMode) {
         QGraphicsItem *item = graphicsView->itemAt(graphicsView->mapFromScene(scenePos));
 
         if (item) {
@@ -78,6 +78,22 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
             } else if (auto lineItem = dynamic_cast<QGraphicsLineItem*>(item)) {
                 graphicsScene->removeItem(lineItem);
                 delete lineItem;
+            }
+        }
+    }
+
+    if (isMovingMode) {
+        QGraphicsItem *item = graphicsView->itemAt(graphicsView->mapFromScene(scenePos));
+
+        if (item) {
+            if (auto pixmapItem = dynamic_cast<QGraphicsPixmapItem*>(item)) {
+                QPixmap pixmap = pixmapItem->pixmap();
+                std::shared_ptr<QGraphicsPixmapItem> sharedPixmapItem(pixmapItem);
+                isMovingMode = false;
+                componentManager->startComponentPlacement("", pixmap, sharedPixmapItem);
+
+            } else if (auto lineItem = dynamic_cast<QGraphicsLineItem*>(item)) {
+                // graphicsScene->startLineMoving(lineItem);
             }
         }
     }

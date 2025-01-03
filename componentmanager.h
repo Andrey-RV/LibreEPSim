@@ -21,10 +21,11 @@ public:
         QList<QPointF> terminals;
     } component;
 
-    void startComponentPlacement(const QString& imagePath);
+    void startComponentPlacement(const QString& imagePath, QPixmap componentPixmap, std::shared_ptr<QGraphicsPixmapItem> component);
     void finalizeComponentPlacement();
     void appendComponent(ComponentManager::Component c);
     void removeComponent(QGraphicsPixmapItem *item);
+    void startComponentMoving(std::shared_ptr<QGraphicsPixmapItem> item);
 
     QList<Component> getComponents() const;
 
