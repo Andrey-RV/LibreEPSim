@@ -49,6 +49,7 @@ private:
     std::unique_ptr<ComponentManager> componentManager;
 
     bool isDeletionMode = false;
+    bool isMovingMode = false;
 
     void keyPressEvent(QKeyEvent *event);
     void zoomIn();

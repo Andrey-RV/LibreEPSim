@@ -149,6 +149,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         case Qt::Key_L:
             MainWindow::on_actionline_triggered();
             break;
+        case Qt::Key_M:
+            isMovingMode = true;
+            graphicsView->setCursor(Qt::OpenHandCursor);
+            break;
         case Qt::Key_Escape:
             if (lineDrawer->getCurrentLine()) {
                 lineDrawer->cancelDrawing();
@@ -161,6 +165,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
             if (isDeletionMode) {
                 isDeletionMode = false;
+                graphicsView->unsetCursor();
+            }
+            if (isMovingMode) {
+                isMovingMode = false;
                 graphicsView->unsetCursor();
             }
             break;
