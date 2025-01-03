@@ -64,8 +64,27 @@ void MainWindow::onMousePressed(const QPointF &scenePos)
         lineDrawer->changeLineDirection(scenePos);
     }
 
-    if (componentManager->getComponentIsMoving() && componentManager->getCurrentComponent()) {
+    else if (componentManager->getComponentIsMoving() && componentManager->getCurrentComponent()) {
         componentManager->finalizeComponentPlacement();
+    }
+
+    else if (isDeletionMode) {
+        QGraphicsItem *item = graphicsView->itemAt(graphicsView->mapFromScene(scenePos));
+
+        if (item) {
+            if (auto pixmapItem = dynamic_cast<QGraphicsPixmapItem*>(item)) {
+                for (int i = 0; i < componentManager->getComponents().size(); ++i) {
+                    if (componentManager->getComponents()[i].item.get() == pixmapItem) {
+                        graphicsScene->removeItem(componentManager->getComponents()[i].item.get());
+                        // components.removeAt(index);
+                        break;
+                    }
+                }
+            } else if (auto lineItem = dynamic_cast<QGraphicsLineItem*>(item)) {
+                graphicsScene->removeItem(lineItem);
+                delete lineItem;
+            }
+        }
     }
 }
 
@@ -145,6 +164,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 componentManager->setComponentIsMoving(false);
                 graphicsView->unsetCursor();
             }
+            if (isDeletionMode) {
+                isDeletionMode = false;
+                graphicsView->unsetCursor();
+            }
+            break;
+        case Qt::Key_Delete:
+            isDeletionMode = true;
+            graphicsView->setCursor(Qt::CrossCursor);
             break;
         default:
             break;

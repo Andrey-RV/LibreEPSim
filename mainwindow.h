@@ -48,6 +48,8 @@ private:
     std::unique_ptr<LineDrawer> lineDrawer;
     std::unique_ptr<ComponentManager> componentManager;
 
+    bool isDeletionMode = false;
+
     void keyPressEvent(QKeyEvent *event);
     void zoomIn();
     void zoomOut();
