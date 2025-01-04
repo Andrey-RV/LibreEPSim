@@ -45,6 +45,7 @@ private:
     Grid grid;
     QList<Component> components;
     std::shared_ptr<QGraphicsPixmapItem> currentComponent = nullptr;
+    QPixmap loadedPixMap = QPixmap();
     QList<std::shared_ptr<QGraphicsPixmapItem>> componentsItems;
     std::shared_ptr<MyGraphicsView> graphicsView;
     std::shared_ptr<QGraphicsScene> graphicsScene;

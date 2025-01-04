@@ -12,27 +12,25 @@ ComponentManager::ComponentManager(std::shared_ptr<MyGraphicsView> graphicsView,
 void ComponentManager::startComponentPlacement(const QString& imagePath, QPixmap componentPixmap = QPixmap(),
                                                std::shared_ptr<QGraphicsPixmapItem> component = nullptr)
 {
-    // Load the component image
     if (!component) {
-        QPixmap componentPixmap(imagePath);
-        if (componentPixmap.isNull()) {
+        QPixmap loadedPixMap(imagePath);
+        if (loadedPixMap.isNull()) {
             qWarning() << "Failed to load component image:" << imagePath;
             return;
         }
-        currentComponent = std::make_shared<QGraphicsPixmapItem>(componentPixmap);
+        currentComponent = std::make_shared<QGraphicsPixmapItem>(loadedPixMap);
+        graphicsScene->addItem(currentComponent.get());
     }
 
     else {
         currentComponent = component;
+        loadedPixMap = componentPixmap;
     }
 
     QPointF mousePos = graphicsView->mapToScene(graphicsView->mapFromGlobal(QCursor::pos()));
     QPointF gridSnappedPos = grid.snapToGrid(mousePos, grid.GRID_SIZE);
-    currentComponent->setPos(gridSnappedPos - QPointF(componentPixmap.width() / 2, componentPixmap.height() / 2));
+    currentComponent->setPos(gridSnappedPos - QPointF(loadedPixMap.width() / 2, loadedPixMap.height() / 2));
     currentComponent->setTransformationMode(Qt::SmoothTransformation);
-    if (!graphicsScene->items().contains(currentComponent.get())) {
-       graphicsScene->addItem(currentComponent.get());
-    }
     componentIsMoving = true;
     graphicsView->setCursor(Qt::BlankCursor);
 
